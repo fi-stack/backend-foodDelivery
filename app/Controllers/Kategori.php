@@ -76,4 +76,43 @@ class Kategori extends BaseController
         echo json_encode($output);
         exit();
     }
+
+    public function ajaxSave()
+    {
+        $this->_validate('save');
+
+        $data = [
+            'nama_kategori' => $this->request->getVar('nama_kategori'),
+            'status' => '0'
+        ];
+
+        if ($this->kategori->save($data)) {
+            echo json_encode(['status' => true]);
+        } else {
+            echo json_encode(['status' => false]);
+        }
+    }
+
+    public function _validate($method)
+    {
+        if (!$this->validate($this->kategori->getRulesValidation($method))) {
+            $validation = \Config\Services::validation();
+
+            $data = [];
+            $data['error_string'] = [];
+            $data['inputerror'] = [];
+            $data['status'] = true;
+
+            if ($validation->hasError('nama_kategori')) {
+                $data['inputerror'][] = 'nama_kategori';
+                $data['error_string'][] = $validation->getError('nama_kategori');
+                $data['status'] = false;
+            }
+
+            if ($data['status'] === false) {
+                echo json_encode($data);
+                exit();
+            }
+        }
+    }
 }
